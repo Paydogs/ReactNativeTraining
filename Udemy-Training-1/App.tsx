@@ -1,23 +1,19 @@
 import { useRef, useState } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { GoalItem } from './Components/GoalItem';
+import { GoalInput } from './Components/GoalInput';
 
 export default function App() {
-  const inputFieldRef = useRef<TextInput | null>(null);
-
-  const [enteredGoalText, setEnteredGoalText] = useState('');
   const [goals, setGoals] = useState<string[]>([]);
   const [finishedGoals, setFinishedGoals] = useState<string[]>([]);
-  const [isDisabled, setDisabledTo] = useState<boolean>(false);
 
-  function goalInputHandler(enteredText: string) {
-    setEnteredGoalText(enteredText);
-    setDisabledTo(goals.includes(enteredText));
-  };
+  function validator(text: string): boolean {
+    const isValid = !goals.includes(text)
+    return isValid
+  }
 
-  function addGoalHandler() {
-    console.log("Goal: " + enteredGoalText);
-    setGoals(goals => [...goals, enteredGoalText]);
-    inputFieldRef.current?.clear();
+  function addGoalHandler(goal: string) {
+    setGoals(goals => [...goals, goal]);
   };
 
   function toggleGoalFinish(goal: string) {
@@ -30,18 +26,14 @@ export default function App() {
 
   return (
     <View style={styles.appContainer}>
+      <Image style={{ height: 100, width: 100, alignItems: "center", justifyContent: "space-between"}} source={require('./assets/icon.png')} />
       <Text style={styles.titleText}>Add Goal</Text>
-      <View style={styles.inputContainer}>
-        <TextInput ref={inputFieldRef} style={styles.textInput} placeholder='Goal' onChangeText={goalInputHandler}/>
-        <Button disabled={isDisabled} title='Add Goal' onPress={addGoalHandler} />
-      </View>
+      <GoalInput isValid={validator} onAddGoal={addGoalHandler}/>
       <View style={styles.goalContainer}>
         <Text>List of goals:</Text>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {goals.map((goal) =>
-            <Pressable key={goal} onPress={() => toggleGoalFinish(goal)}>
-              <Text style={[styles.listElement, finishedGoals.includes(goal)?styles.finishedGoal:styles.unfinishedGoal]}>{goal}</Text>
-            </Pressable>
+            <GoalItem key={goal} goal={goal} isFinished={finishedGoals.includes(goal)} onTap={toggleGoalFinish}/>
           )}
         </ScrollView>
       </View>
@@ -59,46 +51,9 @@ const styles = StyleSheet.create({
     fontSize: 32,
     paddingBottom: 16
   },
-  inputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc'
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    width: '70%',
-    borderRadius: 16,
-    marginRight: 8,
-    padding: 8
-  },
   goalContainer: {
     flex: 5,
     paddingTop: 8
-  },
-  listElement: {
-    fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginVertical: 8,
-    borderWidth: 1,
-    borderRadius: 16
-  },
-  listelement2: {
-    fontSize: 24,
-    borderRadius: 34
-  },
-  finishedGoal: {
-    backgroundColor: '#23d289ff',
-    color: '#000000'
-  },
-  unfinishedGoal: {
-    backgroundColor: '#773232ff',
-    color: '#ffffff'
   },
   scrollView: {
 
